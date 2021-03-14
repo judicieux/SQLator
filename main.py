@@ -53,7 +53,7 @@ if __name__ == "__main__":
 	clear.clear_term()
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-lr', '--length_row', dest='length_row', action='store_true', help='usage: python3 main.py -lr --url [https://example.com/a.php?id=1] --column [name] --sign [keyword]')
-	parser.add_argument('-sr', '--substr_row', dest='substr_row', action='store_true', help='usage: python3 main.py -sr --url [https://example.com/a.php?id=1] --column [name] --sign [keyword]')
+	parser.add_argument('-sr', '--substr_row', dest='substr_row', action='store_true', help='usage: python3 main.py -sr --url [https://example.com/a.php?id=1] --column [name] --length [int] --sign [keyword]')
 	parser.add_argument('-url', '--url', dest='url')
 	parser.add_argument('-column', '--column', dest='column')
 	parser.add_argument('-length', '--length', dest='length')
