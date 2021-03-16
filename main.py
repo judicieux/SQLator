@@ -55,21 +55,23 @@ class Mysql:
 	def urlfilter(self):
 		results = []
 		for i in range(0, self.pages):
-	        soup = BeautifulSoup(requests.get(f"https://www.google.com/search?q={self.dork}&start={self.pages}0", headers={'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'}).content, 'html.parser')
-	    	items = soup.select('a[href^="http"]')
-	        for item in items:
-	            results.append(item['href'])
+	        	soup = BeautifulSoup(requests.get(f"https://www.google.com/search?q={self.dork}&start={self.pages}0", headers={'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'}).content, 'html.parser')
+	    		items = soup.select('a[href^="http"]')
+	        	for item in items:
+	            		results.append(item['href'])
 
-	    google_filter = []
-	    for i in results:
-	        if "google" not in i:
-	            google_filter.append(i)
-	    duplicate_rm = []
-	    for n, i in enumerate(google_filter):
-	        if i not in google_filter[:n]:
-	            duplicate_rm.append(i)
-	    for i in duplicate_rm:
-	        print(i)
+	    	google_filter = []
+	    	for i in results:
+			if "google" not in i:
+		    	google_filter.append(i)
+
+	    	duplicate_rm = []
+	    	for n, i in enumerate(google_filter):
+		       if i not in google_filter[:n]:
+		    		duplicate_rm.append(i)
+
+	    	for i in duplicate_rm:
+			print(i)
 		
 	def length_row_post(self):
 		print(f"{Fore.WHITE}[{Fore.YELLOW}Length{Fore.WHITE}]: ", end='', flush=True)
