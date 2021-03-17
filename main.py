@@ -12,14 +12,15 @@ import colorama
 colorama.init()
 
 class Mysql:
-	def __init__(self, url, column_name, length, sign, data, endpoint, dork, pages, clear):
+	def __init__(self, url, column_name, length, sign, data, endpoint, filekeyword, pages, fileurl,clear):
 		self.url = url
 		self.column_name = column_name
 		self.length = length
 		self.sign = sign
 		self.data = data
 		self.endpoint = endpoint
-		self.dork = dork
+		self.filekeyword = filekeyword
+		self.fileurl = fileurl
 		self.pages = pages
 		self.clear = clear
 
@@ -51,27 +52,6 @@ class Mysql:
 				print(f"{Fore.GREEN}{i}")
 				if keyboard.read_key() == "enter":
 						break
-
-	def urlfilter(self):
-		results = []
-		for i in range(0, self.pages):
-	        	soup = BeautifulSoup(requests.get(f"https://www.google.com/search?q={self.dork}&start={self.pages}0", headers={'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'}).content, 'html.parser')
-	    		items = soup.select('a[href^="http"]')
-	        	for item in items:
-	            		results.append(item['href'])
-
-	    	google_filter = []
-	    	for i in results:
-			if "google" not in i:
-		    	google_filter.append(i)
-
-	    	duplicate_rm = []
-	    	for n, i in enumerate(google_filter):
-		       if i not in google_filter[:n]:
-		    		duplicate_rm.append(i)
-
-	    	for i in duplicate_rm:
-			print(i)
 		
 	def length_row_post(self):
 		print(f"{Fore.WHITE}[{Fore.YELLOW}Length{Fore.WHITE}]: ", end='', flush=True)
@@ -106,60 +86,100 @@ class Mysql:
 					if keyboard.read_key() == "enter":
 						break
 
+	def urlfilter(self):
+	    with open(self.filekeyword, "r") as file:
+	        content = file.readlines()
+
+	    content = [a.strip() for a in content] 
+	    results = []
+	    for a in content:
+	        for i in range(0, int(self.pages)):
+	            a = requests.get(f"https://www.bing.com/search?q={a}&first={self.pages}1", headers={"User-agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"})
+	            soup = BeautifulSoup(a.content, 'html.parser')
+	            items = soup.select('a[href^="http"]')
+	            for item in items:
+	                results.append(item['href'])
+
+	    filter_x = []
+	    for i in results:
+	        if "google" not in i:
+	            if "microsoft" not in i:
+	                if "bing" not in i:
+	                    filter_x.append(i)
+
+	    duplicate_rm = []
+	    for n, i in enumerate(filter_x):
+	        if i not in filter_x[:n]:
+	            duplicate_rm.append(i)
+
+	    with open("linksparams.txt", "a+") as file:
+	        for i in duplicate_rm:
+	            file.write(i + "\n")
+
+	    print(f"{Fore.WHITE}[{Fore.YELLOW}Saved{Fore.WHITE}]: {Fore.GREEN}linksparams.txt{Fore.RESET}")
+
+	    with open("linksparams.txt", "r") as file:
+	        a = file.readlines()
+	        with open("linkscleaned.txt", "a+") as file:
+	            for a in a:
+	                file.write(str(a).split("/")[2] + "\n")
+
+	    print(f"{Fore.WHITE}[{Fore.YELLOW}Saved{Fore.WHITE}]: {Fore.GREEN}linkscleaned.txt{Fore.RESET}")
+
 
 if __name__ == "__main__":
-	clear = Mysql(False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
+	clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 	clear.clear_term()
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-lrg', '--length_row_get', dest='length_row_get', action='store_true', help="usage: python3 main.py -lrg --url [https://example.com/a.php?id=1] --endpoint ['] --column [name] --sign [keyword]")
 	parser.add_argument('-lrp', '--length_row_post', dest='length_row_post', action='store_true', help="usage: python3 main.py -lrp --url [https://example.com/a.php?id=1] --endpoint ['] --data [Data] --column [name] --sign [keyword]")
 	parser.add_argument('-srg', '--substr_row_get', dest='substr_row_get', action='store_true', help="usage: python3 main.py -srg --url [https://example.com/a.php?id=1] --endpoint ['] --column [name] --length [int] --sign [keyword]")
 	parser.add_argument('-srp', '--substr_row_post', dest='substr_row_post', action='store_true', help="usage: python3 main.py -srp --url [https://example.com/a.php] --endpoint ['] --data [Data] --column [name] --length [int] --sign [keyword]")
-	parser.add_argument('-uf', '--urlfilter', dest='urlfilter', action='store_true', help="usage: python3 main.py --keyword [word/dork] --pages [number]")
+	parser.add_argument('-uf', '--urlfilter', dest='urlfilter', action='store_true', help="usage: python3 main.py -uf --filekeyword [file] --pages [number]")
+	parser.add_argument('-si', '--sqlinjectable', dest='sqlinjectable', action='store_true', help="usage: python3 main.py -si --filelinks [file]")
 	parser.add_argument('-url', '--url', dest='url')
 	parser.add_argument('-data', '--data', dest='data')
 	parser.add_argument('-endpoint', '--endpoint', dest='endpoint')
 	parser.add_argument('-column', '--column', dest='column')
 	parser.add_argument('-length', '--length', dest='length')
 	parser.add_argument('-sign', '--sign', dest='sign')
-	parser.add_argument('-keyword', '--keyword', dest='keyword')
+	parser.add_argument('-filekeyword', '--filekeyword', dest='filekeyword')
+	parser.add_argument('-filelinks', '--filelinks', dest='filelinks')
 	parser.add_argument('-pages', '--pages', dest='pages')
 	args = parser.parse_args()
 
 	if args.length_row_get:
 		if args.endpoint is None:
 			args.endpoint = "+"
-			length_row_get = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False)
-			info = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False)
+			length_row_get = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
+			info = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
 			info.info()
 			length_row_get.length_row_get()
 
 	if args.length_row_post:
 		if args.endpoint is None:
 			args.endpoint = "+"
-			length_row_post = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False)
-			info = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False)
+			length_row_post = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
+			info = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
 			info.info()
 			length_row_post.length_row_post()
 
 	if args.substr_row_get:
 		if args.endpoint is None:
 			args.endpoint = "+"
-			substr_row_get = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint,False, False, False)
-			info = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint, False, False, False)
+			substr_row_get = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint,False, False, False, False)
+			info = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint, False, False, False, False)
 			info.info()
 			substr_row_get.substr_row_get()
 
 	if args.substr_row_post:
 		if args.endpoint is None:
 			args.endpoint = "+"
-			substr_row_post = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False)
-			info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False)
+			substr_row_post = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
+			info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
 			info.info()
 			substr_row_post.substr_row_post()
 	
 	if args.urlfilter:
-		urlfilter = Mysql(False, False, False, False, False, False, args.keyword, args.pages, False)
-		info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False)
-		info.info()
+		urlfilter = Mysql(False, False, False, False, False, False, args.filekeyword, args.pages, False, False)
 		urlfilter.urlfilter()
