@@ -87,6 +87,19 @@ class Mysql:
 					if keyboard.read_key() == "enter":
 						break
 
+	def sqlinjectable(self):
+		errors = ["Warning: mysql_", "You have an error in your SQL syntax;", "function.mysql", "MySQL result index"]
+		with open(self.fileurl, "r") as file:
+			file = file.readlines()
+			file = [i.strip() for i in file]
+			for i in file:
+				r = requests.get(i + "%27", headers={"User-agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"})
+				for error in errors:
+					if error in r.text:
+						print(f"{Fore.WHITE}[{Fore.YELLOW}Vulnerable{Fore.WHITE}]: {i}")
+						with open("linksvulnerables.txt", "a+") as file:
+							file.write(i + "\n")
+
 	def urlfilter(self):
 	    with open(self.filekeyword, "r") as file:
 	        content = file.readlines()
@@ -119,19 +132,6 @@ class Mysql:
 	            for a in a:
 	                file.write(str(a).split("/")[2] + "\n")
 	    print(f"{Fore.WHITE}[{Fore.YELLOW}Saved{Fore.WHITE}]: {Fore.GREEN}linkscleaned.txt{Fore.RESET}")
-
-	def sqlinjectable(self):
-		errors = ["Warning: mysql_", "You have an error in your SQL syntax;", "function.mysql", "MySQL result index"]
-		with open(self.fileurl, "r") as file:
-			file = file.readlines()
-			file = [i.strip() for i in file]
-			for i in file:
-				r = requests.get(i + "%27", headers={"User-agent":"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"})
-				for error in errors:
-					if error in r.text:
-						print(f"{Fore.WHITE}[{Fore.YELLOW}Vulnerable{Fore.WHITE}]: {i}")
-						with open("linksvulnerables.txt", "a+") as file:
-							file.write(i + "\n")
 
 def main():
 	parser = argparse.ArgumentParser()
