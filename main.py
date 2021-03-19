@@ -52,7 +52,7 @@ class Mysql:
 			if self.sign in target.text:
 				print(f"{Fore.GREEN}{i}")
 				if keyboard.read_key() == "enter":
-						break
+					break
 		
 	def length_row_post(self):
 		print(f"{Fore.WHITE}[{Fore.YELLOW}Length{Fore.WHITE}]: ", end='', flush=True)
